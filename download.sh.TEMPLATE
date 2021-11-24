@@ -1,0 +1,110 @@
+#!/bin/bash
+dataset=$1
+ntimes=$2
+RSE=$3
+##
+scope=ATLAS_OD_EDU
+executable=multiply.execute
+gitrepo="https://github.com/artfisica/multiply-datasets-dac21.git"
+folder=multiply-datasets-dac21
+upload=upload.execute
+lifetime=3456000 ## 40*24*60*60
+listfilestoupload=list-files.txt
+##
+sleep 2
+echo
+echo "   current path"
+pwd
+##
+sleep 5
+echo
+echo "   Who am I?"
+rucio whoami
+sleep 5
+echo
+echo "   Do I have a valid proxy?"
+voms-proxy-info --all
+##
+sleep 5
+echo
+echo "   Download the dataset from the DataLake using RUCIO"
+rucio get $scope:$dataset >log
+##
+sleep 5
+echo
+echo "   Do you have all the files?"
+grep "Files that cannot be downloaded:" log
+##
+sleep 2
+echo
+echo "   Going inside the downloaded dataset folder"
+cd $dataset
+##
+pwd
+##
+sleep 2
+echo
+echo "   Clone the scripts repo"
+git clone $gitrepo 
+##
+sleep 5
+echo
+echo "   Grab the scripts and clean repo"
+cp $folder/*.sh .
+rm -rf $folder
+##
+sleep 5
+echo
+echo "   Is all here?"
+ls -lhrt *.sh
+ls -lhrt *.root
+##
+chmod 755 *.sh
+##
+sleep 5
+echo
+echo "   Starting the multiplication"
+source loop.sh $ntimes
+##
+rm -rf log
+##
+chmod 755 $executable
+source $executable
+##
+sleep 5
+echo
+echo "    Upload comming now"
+echo
+##
+#rucio upload *-$2x.root --scope $scope --rse $RSE
+ls *-$2x.root | sed 's|^|rucio upload | g' | sed "s|\$| --scope $scope --rse $RSE --register-after-upload --lifetime $lifetime|g" >$upload
+
+chmod 755 $upload
+cat $upload
+source $upload
+##
+##
+sleep 5
+echo
+echo "    create dataset"
+echo
+##
+rucio add-dataset $scope:$dataset-$2x-$RSE.DAC21 --lifetime $lifetime
+##
+sleep 5
+echo
+echo "    attach files to new dataset"
+echo
+ls *-$2x.root | sed 's|^|ATLAS_OD_EDU:|g' > $listfilestoupload
+cat $listfilestoupload
+sleep 3
+rucio attach $scope:$dataset-$2x-$RSE.DAC21 --from-file $listfilestoupload
+##
+sleep 5
+rm $listfilestoupload ../log
+##
+sleep 2
+echo
+echo "Done"
+echo
+##
