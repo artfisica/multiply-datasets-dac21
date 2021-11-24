@@ -1,15 +1,20 @@
 #!/bin/bash
+## 
+## USAGE:   . ./download.sh <existing-dataset> <multiple-integer> <destination-RSE>
+## EXAMPLE: . ./download.sh data_13TeV_GamGam_2020 3 INFN-NA-DPM
+##
 dataset=$1
 ntimes=$2
 RSE=$3
 ##
 scope=ATLAS_OD_EDU
 executable=multiply.execute
-gitrepo="https://github.com/artfisica/multiply-datasets-dac21.git"
 folder=multiply-datasets-dac21
+gitrepo="https://github.com/artfisica/$folder.git"
 upload=upload.execute
 lifetime=3456000 ## 40*24*60*60
 listfilestoupload=list-files.txt
+log=log-file.txt
 ##
 sleep 2
 echo
@@ -28,12 +33,12 @@ voms-proxy-info --all
 sleep 5
 echo
 echo "   Download the dataset from the DataLake using RUCIO"
-rucio get $scope:$dataset >log
+rucio get $scope:$dataset >$log
 ##
 sleep 5
 echo
 echo "   Do you have all the files?"
-grep "Files that cannot be downloaded:" log
+grep "Files that cannot be downloaded:" $log
 ##
 sleep 2
 echo
@@ -65,8 +70,6 @@ sleep 5
 echo
 echo "   Starting the multiplication"
 source loop.sh $ntimes
-##
-rm -rf log
 ##
 chmod 755 $executable
 source $executable
@@ -101,7 +104,8 @@ sleep 3
 rucio attach $scope:$dataset-$2x-$RSE.DAC21 --from-file $listfilestoupload
 ##
 sleep 5
-rm $listfilestoupload ../log
+cd ..
+rm -rf $listfilestoupload $log
 ##
 sleep 2
 echo
