@@ -1,0 +1,20 @@
+#!/bin/bash
+multiple=4
+RSE=INFN-NA-DPM-FED
+##
+. ./download.sh data_13TeV_1largeRjet1lep_2020 $multiple $RSE
+. ./download.sh data_13TeV_1lep1tau_2020 $multiple $RSE
+. ./download.sh data_13TeV_1lep_2020 $multiple $RSE
+. ./download.sh data_13TeV_2lep_2020 $multiple $RSE
+. ./download.sh data_13TeV_3lep_2020 $multiple $RSE
+. ./download.sh data_13TeV_4lep_2020 $multiple $RSE
+. ./download.sh data_13TeV_GamGam_2020 $multiple $RSE
+. ./download.sh mc_13TeV_1largeRjet1lep_2020 $multiple $RSE
+. ./download.sh mc_13TeV_1lep1tau_2020 $multiple $RSE
+. ./download.sh mc_13TeV_1lep_2020 $multiple $RSE
+. ./download.sh mc_13TeV_2lep_2020 $multiple $RSE
+. ./download.sh mc_13TeV_3lep_2020 $multiple $RSE
+. ./download.sh mc_13TeV_4lep_2020 $multiple $RSE
+. ./download.sh mc_13TeV_GamGam_2020 $multiple $RSE
+
+echo "Done All"
